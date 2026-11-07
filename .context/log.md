@@ -18,3 +18,5 @@
 - 2026-11-07: Removed named judges from event.md and criteria.md (kept roles and demo advice only), at user request, before first commit.
 - 2026-11-07 ~1:05 PM: Set up `uv` (root `pyproject.toml`, `uv.lock`, Python 3.12). Added fastapi, uvicorn, google-genai, pypdf, reportlab, python-multipart, python-dotenv, pydantic; dev: pytest, httpx, ruff. Added `.env.example`. Documented in README (Setup) and CLAUDE.md (Architecture).
 - 2026-11-07 ~1:20 PM: Folder structure decided: one top-level folder per role (form_engine/, gemini/, voice/, frontend/), each with a README; owners decide their own internals. Replaces the backend/frontend sketch.
+- 2026-11-07 ~1:25 PM: Added API.md as an undecided skeleton; owners fill in their own endpoints.
+- 2026-11-07 ~1:30 PM: API.md: filled DRAFT defaults for /form/fill, /profile/extract, /programs/find, /form/gaps, /recap. /onboarding/turn, /voice/question, /voice/answer left TBD for P2/P3.
