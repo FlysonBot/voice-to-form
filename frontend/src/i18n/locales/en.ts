@@ -116,6 +116,19 @@ export const en = {
   f_pay_frequency: 'How often paid',
   f_current_benefits: 'Current benefits',
   f_sdge_account_number: 'SDG&E account number',
+  f_first_name: 'First name',
+  f_middle_name: 'Middle name',
+  f_last_name: 'Last name',
+  f_address_street: 'Street address',
+  f_address_unit: 'Apartment / unit',
+  f_address_city: 'City',
+  f_address_zip: 'ZIP code',
+  f_income_amount: 'Income amount',
+  f_benefits_calfresh: 'Gets CalFresh',
+  f_benefits_medi_cal: 'Gets Medi-Cal',
+  f_benefits_wic: 'Gets WIC',
+  f_benefits_ssi: 'Gets SSI',
+  f_benefits_school_meals: 'Free/reduced school meals',
 };
 
 export type Key = keyof typeof en;

@@ -16,7 +16,7 @@ Each owner fills in **their own** endpoints. The consumer (mostly P4 frontend) c
 | How is speech returned: URL, base64, or text only (browser speaks it)? | DRAFT (P2 finding; P3 decides) | Text only for now: no TTS model is listed for P2's Gemini key, so the browser's `speechSynthesis` speaks the text. |
 | Error response shape | DRAFT (P2) | `{"error": "<readable message>", "retryable": true\|false}`. 422 bad input, 400 missing audio, 502 Gemini failed (e.g. rate limit, `retryable: true`), 500 anything else. Messages never echo submitted values. |
 | Where the shared profile schema lives, and who writes it | DRAFT (P2) | `gemini/profile_fields.py` (`ONBOARDING_FIELDS`), owned by P2; key list in `gemini/README.md`. **Decided:** names and addresses use separate keys: `first_name`, `middle_name`, `last_name`, `address_street`, `address_unit`, `address_city`, `address_zip` (no `full_name` or `address` key). No state key; P1 writes "CA" into State fields. |
-| Where the entry file that wires all routers together lives | TBD | |
+| Where the entry file that wires all routers together lives | DONE | `server/main.py` (`uv run uvicorn server.main:app --port 8000`). `server/adapters.py` translates the frontend's request shapes to each owner's contract; see `server/README.md`. |
 
 ## Endpoints
 

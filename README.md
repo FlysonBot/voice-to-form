@@ -85,3 +85,10 @@ Add a package with `uv add <name>` (dev-only: `uv add --dev <name>`), then commi
 ## Status
 
 Hackathon prototype, built in about four hours. Not a legal service and not an official application channel. Always check a form and its eligibility rules with the program itself.
+
+## Run the whole app
+```bash
+uv run uvicorn server.main:app --reload --port 8000                       # backend, repo root (.env needs GEMINI_API_KEY + GEMINI_MODEL)
+cd frontend && npm install && echo "VITE_API_MODE=live" > .env && npm run dev   # http://localhost:5173
+```
+Details: [`server/README.md`](server/README.md).

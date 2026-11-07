@@ -7,11 +7,11 @@ from pydantic import BaseModel
 from .fields import (
     DERIVED,
     FIELD_TYPES,
-    LANGUAGES,
     NEVER_ASK,
     SENSITIVE_GAP_FIELDS,
     add_derived,
     coerce,
+    lang_name,
 )
 from .gemini_client import audio_part, structured_call
 
@@ -26,7 +26,7 @@ class QuestionOut(BaseModel):
 
 
 def make_question(language: str, field: str, description: str, form_name: str, retry_reason: str = "") -> dict:
-    lang = LANGUAGES.get(language, "English")
+    lang = lang_name(language)
     if field.lower() in NEVER_ASK:
         raise ValueError("This field is never asked by the app (immigration/citizenship).")
     sensitive = field.lower() in SENSITIVE_GAP_FIELDS
@@ -61,7 +61,7 @@ if repeat -> repeat the question. confidence < 0.8 if audio was unclear or you g
 
 
 def parse_answer(language: str, field: str, description: str, question: str, audio_b64: str, mime_type: str) -> dict:
-    lang = LANGUAGES.get(language, "English")
+    lang = lang_name(language)
     prompt = f"We asked for field `{field}` ({description or field}).\nQuestion we asked: {question}\n\n{ANSWER_RULES}"
     out: AnswerOut = structured_call([prompt, audio_part(audio_b64, mime_type)], AnswerOut, STYLE.format(lang=lang))
     result = out.model_dump()
@@ -105,7 +105,7 @@ def _flat_profile(profile: dict) -> dict:
 
 
 def make_recap(language: str, profile: dict, form_name: str, blank_fields: list[str]) -> dict:
-    lang = LANGUAGES.get(language, "English")
+    lang = lang_name(language)
     flat = _flat_profile(profile)
     prompt = (
         f"Read back this information for the form '{form_name or 'the form'}'. One item per field, same order, every field.\n"
@@ -136,7 +136,7 @@ class CorrectOut(BaseModel):
 
 
 def recap_correct(language: str, profile: dict, audio_b64: str, mime_type: str, current_field: str = "") -> dict:
-    lang = LANGUAGES.get(language, "English")
+    lang = lang_name(language)
     flat = _flat_profile(profile)
     prompt = (
         "The user just heard a read-back of their form data and is responding by voice.\n"

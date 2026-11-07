@@ -13,7 +13,16 @@ LANGUAGES = {
     "vi": "Vietnamese",
     "tl": "Tagalog",
     "ar": "Arabic",
+    "fr": "French",
 }
+
+
+def lang_name(code: str) -> str:
+    """Language name for prompts. A typed-in name (the frontend's "Other": "Korean") is used as is."""
+    code = (code or "").strip()
+    if code.lower() in LANGUAGES:
+        return LANGUAGES[code.lower()]
+    return code if len(code) > 3 else "English"
 
 # (key, type, optional, what it means — used to brief Gemini)
 ONBOARDING_FIELDS = [

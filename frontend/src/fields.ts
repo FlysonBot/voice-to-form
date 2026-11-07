@@ -8,26 +8,44 @@ export const CONFIDENCE_THRESHOLD = 0.8;
  * still display (humanized). Order here is the order they show in the sidebar.
  */
 export const FIELD_LABELS: Record<string, Key> = {
+  // Keys agreed in API.md (gemini/profile_fields.py): names and addresses are split.
+  first_name: 'f_first_name',
+  middle_name: 'f_middle_name',
+  last_name: 'f_last_name',
   full_name: 'f_full_name',
   date_of_birth: 'f_date_of_birth',
   phone: 'f_phone',
   email: 'f_email',
+  address_street: 'f_address_street',
+  address_unit: 'f_address_unit',
+  address_city: 'f_address_city',
+  address_zip: 'f_address_zip',
   address: 'f_address',
   mailing_address: 'f_mailing_address',
+  housing_status: 'f_rent_or_own',
   rent_or_own: 'f_rent_or_own',
+  monthly_housing_cost: 'f_housing_cost',
   housing_cost: 'f_housing_cost',
   household_size: 'f_household_size',
   household_members: 'f_household_members',
+  income_amount: 'f_income_amount',
+  income_frequency: 'f_pay_frequency',
+  pay_frequency: 'f_pay_frequency',
   monthly_income: 'f_monthly_income',
   income_sources: 'f_income_sources',
-  pay_frequency: 'f_pay_frequency',
+  benefits_calfresh: 'f_benefits_calfresh',
+  benefits_medi_cal: 'f_benefits_medi_cal',
+  benefits_wic: 'f_benefits_wic',
+  benefits_ssi: 'f_benefits_ssi',
+  benefits_school_meals: 'f_benefits_school_meals',
   current_benefits: 'f_current_benefits',
   sdge_account_number: 'f_sdge_account_number',
 };
 
 /** What the onboarding sidebar tracks (the core of "tell us once") */
 export const ONBOARDING_KEYS = [
-  'full_name', 'date_of_birth', 'phone', 'address', 'household_size', 'household_members', 'monthly_income', 'current_benefits',
+  'first_name', 'last_name', 'date_of_birth', 'phone', 'address_street', 'address_city', 'address_zip',
+  'household_size', 'household_members', 'monthly_income',
 ];
 
 export const humanize = (key: string) => key.replace(/_/g, ' ').replace(/^\w/, (c) => c.toUpperCase());
