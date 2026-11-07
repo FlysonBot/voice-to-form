@@ -9,6 +9,7 @@ Route owners (API.md):
   /recap/correct, /voice/tts        P3 voice/
   /form/fill                        P1 form_engine/
   /form/gaps                        server/adapters.py (from P1's fields.json)
+  /programs/find                    server/programs.py (Search grounding + structured output)
 """
 
 import logging
@@ -22,6 +23,7 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(messag
 
 from form_engine.routes import router as form_router  # noqa: E402
 from server.adapters import router as adapters_router  # noqa: E402
+from server.programs import router as programs_router  # noqa: E402
 from voice.router import router as voice_router  # noqa: E402
 
 # Routes the adapters serve; the role routers' own versions of these are not mounted.
@@ -39,6 +41,7 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 app.include_router(adapters_router)
 app.include_router(_without(voice_router, ADAPTED))
 app.include_router(form_router)
+app.include_router(programs_router)
 
 
 @app.get("/health")
