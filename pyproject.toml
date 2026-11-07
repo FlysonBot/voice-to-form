@@ -1,0 +1,21 @@
+[project]
+name = "voice-to-form"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.162.2",
+    "google-genai>=3.0.0",
+    "pydantic>=2.14.3",
+    "pypdf>=7.0.0",
+    "python-dotenv>=1.2.4",
+    "python-multipart>=0.0.33",
+    "reportlab>=5.1.0",
+    "uvicorn[standard]>=0.54.0",
+]
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "pytest>=9.2.0",
+    "ruff>=0.17.4",
+]

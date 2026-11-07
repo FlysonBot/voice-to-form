@@ -58,6 +58,20 @@ backend/    Python FastAPI: Gemini calls, PDF filling
 
 Full details (data format, API endpoints, team split, timeline, privacy rules) are in [`CLAUDE.md`](CLAUDE.md).
 
+## Setup
+
+Needs [uv](https://docs.astral.sh/uv/) (it installs Python 3.12 for you).
+
+```bash
+uv sync                      # create .venv and install everything from uv.lock
+cp .env.example .env         # then fill in GEMINI_API_KEY and GEMINI_MODEL
+uv run fastapi dev backend/main.py   # run the API (once backend/main.py exists)
+uv run pytest                # tests
+uv run ruff check . && uv run ruff format .
+```
+
+Add a package with `uv add <name>` (dev-only: `uv add --dev <name>`), then commit both `pyproject.toml` and `uv.lock`. Never use `pip install`. The frontend (`frontend/`) uses npm and is set up separately.
+
 ## Privacy
 
 - Profile data stays in session memory only. There is no database and no logging of personal information.

@@ -90,6 +90,8 @@ backend/    Python FastAPI — Gemini calls, PDF filling
 
 Suggested stack (the team can change it): React + Vite, FastAPI, `google-genai` (official Gemini Python SDK), `pypdf`, `reportlab` (fallback overlay), `signature_pad` (JS).
 
+**Python tooling: `uv`.** `pyproject.toml` and `uv.lock` are at the repo root (Python 3.12, `.python-version`). Installed: fastapi, uvicorn, google-genai, pypdf, reportlab, python-multipart, python-dotenv, pydantic; dev: pytest, httpx, ruff. Run everything with `uv run ...` (e.g. `uv run fastapi dev backend/main.py`). Add packages with `uv add`, never `pip install`, and commit `pyproject.toml` + `uv.lock` together. Copy `.env.example` to `.env` for keys.
+
 ### Shared data format (everyone reads and writes this)
 
 ```json
