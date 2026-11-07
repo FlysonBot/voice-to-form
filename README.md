@@ -52,12 +52,12 @@ voice/         audio in/out, onboarding conversation, recap
 frontend/      React (Vite): screens, signature pad
 ```
 
-- **One shared JSON profile** that every part of the app reads and writes. Each field has a value, a confidence from 0 to 1 and a source (voice, ID photo, document). Any field under 0.8 confidence must be confirmed by the user.
+- **One shared JSON session** that every part of the app reads and writes. The browser keeps it in memory and sends it with every API call; the server stores nothing. Each profile field has a value, a confidence from 0 to 1 and a source (voice, ID photo, document). Any field under 0.8 confidence must be confirmed by the user.
 - **Gemini** (`google-genai`) transcribes speech, extracts data from photos, parses answers and writes the questions in the user's language, using structured JSON output. Program suggestions use Google Search grounding so income limits and rules come from official sources.
 - **PDF filling** uses `pypdf` to fill the form's fields, with `reportlab` to overlay text if the PDF isn't fillable. The signature is stamped on from the on-screen pad.
-- **Speech out** uses a Gemini speech model, with the browser's speech synthesis as a fallback.
+- **Speech out** uses a Gemini speech model, with the browser's speech synthesis as a fallback (for now the browser does it: no Gemini speech model was available on our key).
 
-Full details (data format, API endpoints, team split, timeline, privacy rules) are in [`CLAUDE.md`](CLAUDE.md).
+Full details (data format, team split, timeline, privacy rules) are in [`CLAUDE.md`](CLAUDE.md). Endpoint contracts are in [`API.md`](API.md). Each role folder documents itself in its own `README.md`.
 
 ## Setup
 
@@ -65,11 +65,14 @@ Needs [uv](https://docs.astral.sh/uv/) (it installs Python 3.12 for you).
 
 ```bash
 uv sync                      # create .venv and install everything from uv.lock
-cp .env.example .env         # then fill in GEMINI_API_KEY and GEMINI_MODEL
-uv run fastapi dev <entry file>   # run the API (entry file TBD by the team)
+cp .env.example .env         # then fill in GEMINI_API_KEY and GEMINI_MODEL (e.g. gemini-3.1-flash-lite)
+uv run fastapi dev <entry file>   # run the API (combined entry file TBD by the team)
+uv run fastapi dev gemini/dev_app.py   # P2's routes only, with ?mock=true support
 uv run pytest                # tests
 uv run ruff check . && uv run ruff format .
 ```
+
+The Gemini free tier allows only about 20 requests per model per day, so the demo key's project has billing enabled (see `CLAUDE.md`, Gemini notes).
 
 Add a package with `uv add <name>` (dev-only: `uv add --dev <name>`), then commit both `pyproject.toml` and `uv.lock`. Never use `pip install`. The frontend (`frontend/`) uses npm and is set up separately.
 

@@ -8,6 +8,8 @@ Project: "Tell Us Once" / voice-to-form (repo FlysonBot/voice-to-form, now the p
 | strategy.md | Suggested approach and open choices |
 | criteria.md | Inferred judging criteria (simulated judge) |
 | ../README.md, ../CLAUDE.md | Project README (user walkthrough) and team plan (data format, endpoints, roles, timeline) |
+| ../API.md | Endpoint contracts (DRAFT/AGREED per endpoint), shared error shape, audio/speech decisions |
+| ../gemini/README.md | P2 Gemini folder: layout, how to run, profile keys, model/quota findings |
 | log.md | Dated decisions and clarifications (newest last) |
 
 ## Sources (fetched 2026-11-07)

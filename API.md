@@ -12,10 +12,10 @@ Each owner fills in **their own** endpoints. The consumer (mostly P4 frontend) c
 ## Open across all endpoints (owners decide, then record here)
 | Question | Status | Decision |
 |---|---|---|
-| How is audio sent: multipart upload or base64 in JSON? Which format (webm/wav)? | TBD | |
-| How is speech returned: URL, base64, or text only (browser speaks it)? | TBD, depends on whether Gemini TTS works (P3 test) | |
-| Error response shape | TBD | |
-| Where the shared profile schema lives, and who writes it | TBD | |
+| How is audio sent: multipart upload or base64 in JSON? Which format (webm/wav)? | DRAFT (P2) | Multipart file field `audio`, sent as the browser's `MediaRecorder` records it (`audio/webm;codecs=opus`). Gemini accepted webm directly in P2's test; no conversion needed. Keep clips under a minute. |
+| How is speech returned: URL, base64, or text only (browser speaks it)? | DRAFT (P2 finding; P3 decides) | Text only for now: no TTS model is listed for P2's Gemini key, so the browser's `speechSynthesis` speaks the text. |
+| Error response shape | DRAFT (P2) | `{"error": "<readable message>", "retryable": true\|false}`. 422 bad input, 400 missing audio, 502 Gemini failed (e.g. rate limit, `retryable: true`), 500 anything else. Messages never echo submitted values. |
+| Where the shared profile schema lives, and who writes it | DRAFT (P2) | `gemini/profile_fields.py` (`ONBOARDING_FIELDS`), owned by P2; key list in `gemini/README.md`. **Decided:** names and addresses use separate keys: `first_name`, `middle_name`, `last_name`, `address_street`, `address_unit`, `address_city`, `address_zip` (no `full_name` or `address` key). No state key; P1 writes "CA" into State fields. |
 | Where the entry file that wires all routers together lives | TBD | |
 
 ## Endpoints
@@ -29,9 +29,13 @@ Each owner fills in **their own** endpoints. The consumer (mostly P4 frontend) c
 
 ### `POST /onboarding/turn` (P2 Gemini + P3 Voice) — consumer: P4
 - **Does:** user's audio + current profile → updated profile + next spoken question (or `done: true`)
-- **Request / Response:** TBD
-- **Open:** who owns the endpoint, P2 (extraction logic) or P3 (conversation)? Audio and speech format (see above).
-- **Status:** TBD
+- **Request (multipart):** `audio` (file; leave it out on the very first turn, and the reply is a greeting plus the first question), `session` (JSON string, the shared data format). Onboarding also reads two extra session keys the client keeps: `skipped` (list of profile keys the user skipped) and `last_question` (the question just asked).
+- **Response (JSON):** `{"transcript", "intent": "answer|skip|correction|unclear|question|off_topic", "profile": <merged profile>, "skipped": [...], "updated_keys": [...], "rejected_keys": [...], "next_question": "<in session.language>", "done": bool, "remaining": [...]}`. The client replaces `session.profile` and `session.skipped` with these, sets `last_question = next_question`, and speaks `next_question`. New values carry `source: "onboarding_voice"`. `done` is computed from the field list, not by Gemini. `rejected_keys` = values that failed validation; those fields stay in `remaining`.
+- **Mock:** `?mock=true` returns a mid-onboarding turn (household answered).
+- **Notes:** each turn makes two Gemini calls (transcribe, then extract), ~2.5 s total. `transcript` is the plain transcription. Names the user didn't spell out letter by letter come back with confidence 0.7, so the recap asks the user to confirm them.
+- **Code:** `gemini/` (`run_onboarding_turn`, route in `gemini/router.py`). Live test `gemini/scripts/live_e2e.py`: a full 16-answer Spanish onboarding plus 5 gap fields, 61/61 checks pass.
+- **Open:** route ownership P2 vs P3. Draft: P2 serves it, P3 owns the mic loop and speaking.
+- **Status:** DRAFT (P2)
 
 ### `POST /profile/extract` (P2 Gemini) — consumer: P4
 - **Does:** photo of a document → profile fields with confidence
@@ -62,13 +66,16 @@ Each owner fills in **their own** endpoints. The consumer (mostly P4 frontend) c
 
 ### `POST /voice/answer` (P3 Voice) — consumer: P4
 - **Does:** audio + field → parsed value
-- **Request / Response:** TBD
-- **Status:** TBD
+- **Request (multipart):** `audio` (file), `session` (JSON string, shared data format; uses `language` and `selected_form`), `field` (JSON string: `{"key", "label_en", "type", "options", "description_en", "sensitive"}`, where `type` is `string|name|digits|date|number|int|phone|zip|email|enum|bool`), `question` (optional, the question the user heard).
+- **Response (JSON):** `{"field_key", "transcript", "status": "answered|skipped|leave_blank|unclear", "value": <typed or null>, "confidence", "source": "gap_voice", "clarification_question": "<in session.language, only when unclear>"}`. The client writes `{value, confidence, source}` into `session.profile[field_key]`. `sensitive` fields (SSN, account numbers) are capped at confidence 0.79 so the recap always asks the user to confirm them.
+- **Mock:** `?mock=true` returns a parsed SDG&E account number.
+- **Code:** `gemini/` (`parse_voice_answer`; answer parsing is P2's scope). P3 can serve the route or call the function from `voice/`. Tested against real Gemini: spoken Spanish account number → correct digits.
+- **Status:** DRAFT (P2)
 
 ### `POST /recap` (P3 Voice) — consumer: P4
 - **Does:** profile + language → recap text (+ audio)
 - **Request (JSON):** `{"session": <shared data format>}` (language is `session.language`)
-- **Response (JSON):** `{"items": [{"field": "full_name", "label": "<in user's language>", "value": "...", "needs_confirm": true|false}], "text": "<full recap in user's language>"}`. `needs_confirm` is true when confidence < 0.8.
+- **Response (JSON):** `{"items": [{"field": "first_name", "label": "<in user's language>", "value": "...", "needs_confirm": true|false}], "text": "<full recap in user's language>"}`. `needs_confirm` is true when confidence < 0.8.
 - **Audio:** TBD, depends on the TTS test (see top). Until then the browser speaks `text`.
 - **Mock:** `?mock=true` returns sample items.
 - **Status:** DRAFT for the JSON part (P3 to confirm); audio TBD

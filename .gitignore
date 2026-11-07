@@ -218,3 +218,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Voice recordings used for testing (keep out of the public repo)
+gemini/samples/
