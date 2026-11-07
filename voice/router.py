@@ -58,7 +58,8 @@ class AnswerIn(BaseModel):
 
 class RecapIn(BaseModel):
     language: str = "es"
-    profile: dict
+    profile: dict = {}
+    session: dict | None = None  # API.md draft shape: whole shared session; uses session.profile + session.language
     form_name: str = ""
     blank_fields: list[str] = []
     with_audio: bool = False  # CLAUDE.md: "recap text (+ audio)"
@@ -127,13 +128,24 @@ def post_voice_answer(body: AnswerIn, mock: bool = Query(False)):
 
 @router.post("/recap")
 def post_recap(body: RecapIn, mock: bool = Query(False)):
-    if mock:
-        return mocks.recap(body.profile)
+    language, profile = body.language, body.profile
+    if body.session:
+        language = body.session.get("language") or language
+        profile = body.session.get("profile") or profile
     try:
-        r = make_recap(body.language, body.profile, body.form_name, body.blank_fields)
-        return _with_audio(r, r["script"], body.with_audio)
+        r = mocks.recap(profile) if mock else make_recap(language, profile, body.form_name, body.blank_fields)
+        r = _api_md_aliases(r)
+        return r if mock else _with_audio(r, r["script"], body.with_audio)
     except Exception as e:
         _fail("Recap", e)
+
+
+def _api_md_aliases(r: dict) -> dict:
+    """Also return the field names from the API.md draft (`text`, `needs_confirm`)."""
+    r["text"] = r["script"]
+    for it in r["items"]:
+        it["needs_confirm"] = it["low_confidence"]
+    return r
 
 
 @router.post("/recap/correct")
