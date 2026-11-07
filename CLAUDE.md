@@ -1,6 +1,8 @@
 # CLAUDE.md — "Tell Us Once" (working name)
 
-Built for **UCSD Hack for Humanity 2026**, a 6-hour hackathon. Theme: benefit the city of San Diego. Required tech: **Gemini API**.
+**First, read `.context/README.md`**. Keep `.context` up to date whenever our understanding changes, a decision is made, or a question the user asks gets an answer worth keeping.
+
+Built for **UCSD Hack for Humanity 2026**, a one-day hackathon (Sat Nov 7, 2026). Hacking runs **11:30 AM to 3:30 PM (about 4 hours)**; projects are **due 3:30 PM**, demos and judging 4:00-5:30. Theme: benefit the city of San Diego. Required tech: **Gemini API**. Judged on Impact for San Diego, Technical (does it work), Creativity, Use of AI, and Demo clarity. Teams of 3+.
 
 ## What we're building
 
@@ -154,17 +156,24 @@ Suggested stack (the team can change it): React + Vite, FastAPI, `google-genai` 
 3. **Voice & language.** Mic recording, the voice onboarding conversation, `/voice/question`, `/voice/answer`, `/recap`, TTS plus the browser fallback, re-asking when the user says "that's wrong."
 4. **Frontend + demo.** Screens (Language → Voice onboarding (+ optional document scan) → Find or Upload form → Voice gap questions → Review → Sign → Download), accessible UI (big buttons, icons, mic always visible, low-confidence fields in yellow), fake demo documents, the pitch and a backup demo video.
 
-## Timeline (6 hours)
+## Timeline (hacking ended up 11:30 AM to 3:30 PM; plan below starts at 12:46 PM)
 
 | Time | Goal |
 |---|---|
-| 0:00–0:20 | Agree on the data format, set up the repo, get the Gemini key working, **check whether the CARE PDF is fillable** |
-| 0:20–2:30 | Each person builds their section using fake data in the shared format |
-| **2:30** | **Checkpoint 1:** voice onboarding (or document photo) → profile → filled PDF |
-| 2:30–4:00 | Form-specific voice gap questions + recap, frontend connected, Path B (find programs) |
-| **4:00** | **Checkpoint 2:** the full flow works once from start to finish |
-| 4:00–5:00 | Fix bugs, polish the Spanish demo path |
-| 5:00–6:00 | **No new features.** Rehearse, record the backup video, submit |
+*Re-planned at 12:46 PM (2h 44m left). The repo had no code yet at that point.*
+
+| Time | Goal |
+|---|---|
+| 12:46–1:05 | **Now:** lock the shared JSON format, get the Gemini key working (one test call each for audio-in and a Spanish clip), **check whether the CARE PDF is fillable** (reportlab overlay if not) |
+| 1:05–2:00 | Each person builds their section against mocks (`?mock=true`) using fake data in the shared format |
+| **2:00** | **Checkpoint 1:** Spanish voice onboarding → profile → filled PDF download, even if ugly |
+| 2:00–2:45 | Form-specific voice gap questions, recap, frontend wired end to end. **Path B is cut by default**: pick the form from a short list instead |
+| **2:45** | **Checkpoint 2:** the full flow works once, start to finish |
+| 2:45–3:15 | Fix bugs, make the Spanish demo path reliable, record the backup video by 3:05 |
+| 3:15–3:30 | **No new features.** Submit (aim for 3:20, deadline 3:30) |
+| 3:30–4:00 | Rehearse the demo twice; demos and judging start at 4:00 |
+
+If a checkpoint is missed by more than 10 minutes, apply the cut order below immediately. The 3:30 submission does not move. Ask an organizer how and where to submit **before 2:30**.
 
 **If behind at Checkpoint 1:** cut multi-language support and demo Spanish only. Then cut Path B before cutting voice. A complete flow in one language beats a half-working app.
 
