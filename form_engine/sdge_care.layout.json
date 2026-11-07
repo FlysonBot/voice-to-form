@@ -1,0 +1,278 @@
+{
+  "form_id": "sdge_care",
+  "pdf": "sdge_care.pdf",
+  "page_size": [
+    612,
+    792
+  ],
+  "fields": {
+    "name": {
+      "kind": "text",
+      "page": 0,
+      "x": 50,
+      "y": 657.5,
+      "font_size": 10,
+      "max_width": 330
+    },
+    "home_phone": {
+      "kind": "text",
+      "page": 0,
+      "x": 396,
+      "y": 657.5,
+      "font_size": 10,
+      "max_width": 190
+    },
+    "address": {
+      "kind": "text",
+      "page": 0,
+      "x": 50,
+      "y": 621.5,
+      "font_size": 9,
+      "max_width": 330
+    },
+    "mobile_phone": {
+      "kind": "text",
+      "page": 0,
+      "x": 396,
+      "y": 621.5,
+      "font_size": 10,
+      "max_width": 190
+    },
+    "account_number": {
+      "kind": "text",
+      "page": 0,
+      "x": 50,
+      "y": 585,
+      "font_size": 10,
+      "max_width": 330
+    },
+    "email": {
+      "kind": "text",
+      "page": 0,
+      "x": 396,
+      "y": 585,
+      "font_size": 10,
+      "max_width": 190
+    },
+    "adults": {
+      "kind": "text",
+      "page": 0,
+      "x": 254.5,
+      "y": 518.5,
+      "font_size": 10,
+      "max_width": 16
+    },
+    "children": {
+      "kind": "text",
+      "page": 0,
+      "x": 330.5,
+      "y": 518.5,
+      "font_size": 10,
+      "max_width": 16
+    },
+    "household_total": {
+      "kind": "text",
+      "page": 0,
+      "x": 367.5,
+      "y": 518.5,
+      "font_size": 10,
+      "max_width": 16
+    },
+    "annual_income": {
+      "kind": "text",
+      "page": 0,
+      "x": 224,
+      "y": 140,
+      "font_size": 10,
+      "max_width": 50,
+      "comb": {
+        "xs": [217.85, 229.5, 246.65, 258.0, 269.5],
+        "align": "right"
+      }
+    },
+    "date": {
+      "kind": "text",
+      "page": 0,
+      "x": 388,
+      "y": 48,
+      "font_size": 10,
+      "max_width": 120
+    },
+    "pa_bia": {
+      "kind": "checkbox",
+      "page": 0,
+      "x": 63.75,
+      "y": 431.75,
+      "size": 5
+    },
+    "pa_calfresh": {
+      "kind": "checkbox",
+      "page": 0,
+      "x": 63.75,
+      "y": 411.5,
+      "size": 5
+    },
+    "pa_calworks": {
+      "kind": "checkbox",
+      "page": 0,
+      "x": 63.75,
+      "y": 391.25,
+      "size": 5
+    },
+    "pa_liheap": {
+      "kind": "checkbox",
+      "page": 0,
+      "x": 63.75,
+      "y": 371.25,
+      "size": 5
+    },
+    "pa_medicaid": {
+      "kind": "checkbox",
+      "page": 0,
+      "x": 216.25,
+      "y": 431.75,
+      "size": 5
+    },
+    "pa_nslp": {
+      "kind": "checkbox",
+      "page": 0,
+      "x": 216.25,
+      "y": 420.5,
+      "size": 5
+    },
+    "pa_ssi": {
+      "kind": "checkbox",
+      "page": 0,
+      "x": 216.25,
+      "y": 409.25,
+      "size": 5
+    },
+    "pa_tribal_tanf": {
+      "kind": "checkbox",
+      "page": 0,
+      "x": 216.25,
+      "y": 398.25,
+      "size": 5
+    },
+    "pa_wic": {
+      "kind": "checkbox",
+      "page": 0,
+      "x": 216.25,
+      "y": 387.0,
+      "size": 5
+    },
+    "pa_headstart": {
+      "kind": "checkbox",
+      "page": 0,
+      "x": 216.25,
+      "y": 366.75,
+      "size": 5
+    },
+    "inc_wages": {
+      "kind": "checkbox",
+      "page": 0,
+      "x": 63.75,
+      "y": 242.75,
+      "size": 5
+    },
+    "inc_rent": {
+      "kind": "checkbox",
+      "page": 0,
+      "x": 63.75,
+      "y": 222.5,
+      "size": 5
+    },
+    "inc_pensions": {
+      "kind": "checkbox",
+      "page": 0,
+      "x": 63.75,
+      "y": 211.25,
+      "size": 5
+    },
+    "inc_socsec": {
+      "kind": "checkbox",
+      "page": 0,
+      "x": 63.75,
+      "y": 200.25,
+      "size": 5
+    },
+    "inc_ssi_ssdi": {
+      "kind": "checkbox",
+      "page": 0,
+      "x": 63.75,
+      "y": 189.0,
+      "size": 5
+    },
+    "inc_disability": {
+      "kind": "checkbox",
+      "page": 0,
+      "x": 63.75,
+      "y": 177.75,
+      "size": 5
+    },
+    "inc_unemployment": {
+      "kind": "checkbox",
+      "page": 0,
+      "x": 63.75,
+      "y": 157.75,
+      "size": 5
+    },
+    "inc_scholarships": {
+      "kind": "checkbox",
+      "page": 0,
+      "x": 197.25,
+      "y": 242.75,
+      "size": 5
+    },
+    "inc_interest": {
+      "kind": "checkbox",
+      "page": 0,
+      "x": 197.25,
+      "y": 222.5,
+      "size": 5
+    },
+    "inc_support": {
+      "kind": "checkbox",
+      "page": 0,
+      "x": 197.25,
+      "y": 193.25,
+      "size": 5
+    },
+    "inc_settlements": {
+      "kind": "checkbox",
+      "page": 0,
+      "x": 197.25,
+      "y": 182.25,
+      "size": 5
+    },
+    "inc_cash": {
+      "kind": "checkbox",
+      "page": 0,
+      "x": 197.25,
+      "y": 171.0,
+      "size": 5
+    },
+    "contact_email": {
+      "kind": "checkbox",
+      "page": 0,
+      "x": 206.5,
+      "y": 552.25,
+      "size": 9
+    },
+    "contact_mail": {
+      "kind": "checkbox",
+      "page": 0,
+      "x": 253.0,
+      "y": 552.25,
+      "size": 9
+    },
+    "signature": {
+      "kind": "signature",
+      "page": 0,
+      "x": 70,
+      "y": 46,
+      "w": 290,
+      "h": 13.5
+    }
+  }
+}

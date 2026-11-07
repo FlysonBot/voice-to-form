@@ -1,0 +1,293 @@
+{
+ "form_id": "sdge_care",
+ "fields": [
+  {
+   "key": "name",
+   "label": "Your Name",
+   "kind": "text",
+   "profile_key": "full_name",
+   "source": "profile",
+   "required": true
+  },
+  {
+   "key": "home_phone",
+   "label": "Home Telephone",
+   "kind": "text",
+   "profile_key": "home_phone",
+   "source": "gap",
+   "required": false
+  },
+  {
+   "key": "mobile_phone",
+   "label": "Mobile Phone",
+   "kind": "text",
+   "profile_key": "phone",
+   "source": "profile",
+   "required": false
+  },
+  {
+   "key": "address",
+   "label": "Home Address, Apartment, City, Zip Code",
+   "kind": "text",
+   "profile_key": "address",
+   "source": "profile",
+   "required": true
+  },
+  {
+   "key": "account_number",
+   "label": "SDG&E Account Number",
+   "kind": "text",
+   "profile_key": "sdge_account_number",
+   "source": "gap",
+   "required": true
+  },
+  {
+   "key": "email",
+   "label": "Email Address",
+   "kind": "text",
+   "profile_key": "email",
+   "source": "profile",
+   "required": false
+  },
+  {
+   "key": "adults",
+   "label": "Number of persons in your household: Adults",
+   "kind": "text",
+   "profile_key": null,
+   "source": "derived",
+   "required": false
+  },
+  {
+   "key": "children",
+   "label": "Number of persons in your household: Children",
+   "kind": "text",
+   "profile_key": null,
+   "source": "derived",
+   "required": false
+  },
+  {
+   "key": "household_total",
+   "label": "Number of persons in your household: Total",
+   "kind": "text",
+   "profile_key": "household_size",
+   "source": "profile",
+   "required": true
+  },
+  {
+   "key": "pa_bia",
+   "label": "Bureau of Indian Affairs General Assistance",
+   "kind": "checkbox",
+   "profile_key": "current_benefits",
+   "source": "profile",
+   "required": false
+  },
+  {
+   "key": "pa_calfresh",
+   "label": "CalFresh/Supplemental Nutrition Assistance Program (SNAP)",
+   "kind": "checkbox",
+   "profile_key": "current_benefits",
+   "source": "profile",
+   "required": false
+  },
+  {
+   "key": "pa_calworks",
+   "label": "CalWORKs/Temporary Assistance for Needy Families (TANF)",
+   "kind": "checkbox",
+   "profile_key": "current_benefits",
+   "source": "profile",
+   "required": false
+  },
+  {
+   "key": "pa_liheap",
+   "label": "Low-income Home Energy Assistance Program (LIHEAP)",
+   "kind": "checkbox",
+   "profile_key": "current_benefits",
+   "source": "profile",
+   "required": false
+  },
+  {
+   "key": "pa_medicaid",
+   "label": "Medicaid/Medi-Cal for Families A & B",
+   "kind": "checkbox",
+   "profile_key": "current_benefits",
+   "source": "profile",
+   "required": false
+  },
+  {
+   "key": "pa_nslp",
+   "label": "National School Lunch Program (NSLP)",
+   "kind": "checkbox",
+   "profile_key": "current_benefits",
+   "source": "profile",
+   "required": false
+  },
+  {
+   "key": "pa_ssi",
+   "label": "Supplemental Security Income (SSI)",
+   "kind": "checkbox",
+   "profile_key": "current_benefits",
+   "source": "profile",
+   "required": false
+  },
+  {
+   "key": "pa_tribal_tanf",
+   "label": "Tribal TANF",
+   "kind": "checkbox",
+   "profile_key": "current_benefits",
+   "source": "profile",
+   "required": false
+  },
+  {
+   "key": "pa_wic",
+   "label": "Women, Infants, and Children Program (WIC)",
+   "kind": "checkbox",
+   "profile_key": "current_benefits",
+   "source": "profile",
+   "required": false
+  },
+  {
+   "key": "pa_headstart",
+   "label": "Head Start Income Eligible (Tribal Only)",
+   "kind": "checkbox",
+   "profile_key": "current_benefits",
+   "source": "profile",
+   "required": false
+  },
+  {
+   "key": "inc_wages",
+   "label": "Wages and/or profits from self employment",
+   "kind": "checkbox",
+   "profile_key": "income_sources",
+   "source": "profile",
+   "required": false
+  },
+  {
+   "key": "inc_rent",
+   "label": "Rent or royalty income",
+   "kind": "checkbox",
+   "profile_key": "income_sources",
+   "source": "profile",
+   "required": false
+  },
+  {
+   "key": "inc_pensions",
+   "label": "Pensions",
+   "kind": "checkbox",
+   "profile_key": "income_sources",
+   "source": "profile",
+   "required": false
+  },
+  {
+   "key": "inc_socsec",
+   "label": "Social Security",
+   "kind": "checkbox",
+   "profile_key": "income_sources",
+   "source": "profile",
+   "required": false
+  },
+  {
+   "key": "inc_ssi_ssdi",
+   "label": "SSP or SSDI",
+   "kind": "checkbox",
+   "profile_key": "income_sources",
+   "source": "profile",
+   "required": false
+  },
+  {
+   "key": "inc_disability",
+   "label": "Disability or workers' compensation payments",
+   "kind": "checkbox",
+   "profile_key": "income_sources",
+   "source": "profile",
+   "required": false
+  },
+  {
+   "key": "inc_unemployment",
+   "label": "Unemployment benefits",
+   "kind": "checkbox",
+   "profile_key": "income_sources",
+   "source": "profile",
+   "required": false
+  },
+  {
+   "key": "inc_scholarships",
+   "label": "Scholarships, grants or other aid for living expenses",
+   "kind": "checkbox",
+   "profile_key": "income_sources",
+   "source": "profile",
+   "required": false
+  },
+  {
+   "key": "inc_interest",
+   "label": "Interest/dividends from savings, stocks, bonds or retirement accounts",
+   "kind": "checkbox",
+   "profile_key": "income_sources",
+   "source": "profile",
+   "required": false
+  },
+  {
+   "key": "inc_support",
+   "label": "Spousal or child support",
+   "kind": "checkbox",
+   "profile_key": "income_sources",
+   "source": "profile",
+   "required": false
+  },
+  {
+   "key": "inc_settlements",
+   "label": "Insurance or legal settlements",
+   "kind": "checkbox",
+   "profile_key": "income_sources",
+   "source": "profile",
+   "required": false
+  },
+  {
+   "key": "inc_cash",
+   "label": "Cash or other income",
+   "kind": "checkbox",
+   "profile_key": "income_sources",
+   "source": "profile",
+   "required": false
+  },
+  {
+   "key": "annual_income",
+   "label": "Total annual household income",
+   "kind": "text",
+   "profile_key": "monthly_income",
+   "source": "derived",
+   "required": true
+  },
+  {
+   "key": "contact_email",
+   "label": "How would you like to be contacted? Email",
+   "kind": "checkbox",
+   "profile_key": null,
+   "source": "derived",
+   "required": false
+  },
+  {
+   "key": "contact_mail",
+   "label": "How would you like to be contacted? Mail",
+   "kind": "checkbox",
+   "profile_key": null,
+   "source": "derived",
+   "required": false
+  },
+  {
+   "key": "signature",
+   "label": "Customer Signature",
+   "kind": "signature",
+   "profile_key": null,
+   "source": "signature",
+   "required": true
+  },
+  {
+   "key": "date",
+   "label": "Date",
+   "kind": "text",
+   "profile_key": null,
+   "source": "derived",
+   "required": true
+  }
+ ]
+}

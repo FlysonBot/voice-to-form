@@ -1,0 +1,81 @@
+{
+  "language": "es",
+  "profile": {
+    "full_name": {
+      "value": "Maria Lopez",
+      "confidence": 1.0,
+      "source": "id_photo"
+    },
+    "phone": {
+      "value": "6195550123",
+      "confidence": 1.0,
+      "source": "onboarding_voice"
+    },
+    "email": {
+      "value": "maria.lopez.fake@example.com",
+      "confidence": 0.6,
+      "source": "onboarding_voice"
+    },
+    "address": {
+      "value": "123 Fake St Apt 4, San Diego, CA 92105",
+      "confidence": 1.0,
+      "source": "onboarding_voice"
+    },
+    "sdge_account_number": {
+      "value": "123456789012",
+      "confidence": 1.0,
+      "source": "gap_voice"
+    },
+    "household_size": {
+      "value": 4,
+      "confidence": 1.0,
+      "source": "onboarding_voice"
+    },
+    "household_members": {
+      "value": [
+        {
+          "first_name": "Ana",
+          "relationship": "child",
+          "date_of_birth": "2018-05-01"
+        },
+        {
+          "first_name": "Luis",
+          "relationship": "child",
+          "date_of_birth": "2014-09-15"
+        },
+        {
+          "first_name": "Carlos",
+          "relationship": "spouse",
+          "date_of_birth": "1985-03-02"
+        }
+      ],
+      "confidence": 1.0,
+      "source": "onboarding_voice"
+    },
+    "monthly_income": {
+      "value": 3200,
+      "confidence": 1.0,
+      "source": "onboarding_voice"
+    },
+    "income_sources": {
+      "value": [
+        "job"
+      ],
+      "confidence": 1.0,
+      "source": "onboarding_voice"
+    },
+    "current_benefits": {
+      "value": [
+        "calfresh",
+        "school_meals"
+      ],
+      "confidence": 1.0,
+      "source": "onboarding_voice"
+    }
+  },
+  "selected_form": "sdge_care",
+  "suggested_programs": [],
+  "missing_fields": [],
+  "confirmed": true,
+  "signature_png": null
+}
