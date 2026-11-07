@@ -55,7 +55,7 @@ function browserSpeak(text, lang) {
   return new Promise((resolve) => {
     if (!window.speechSynthesis) return resolve();
     const u = new SpeechSynthesisUtterance(text);
-    u.lang = BCP47[lang] || lang;
+    if (BCP47[lang]) u.lang = BCP47[lang]; // "auto" (not detected yet): browser default voice
     const voice = pickVoice(lang);
     if (voice) u.voice = voice;
     u.rate = 0.92; // a little slower for clarity

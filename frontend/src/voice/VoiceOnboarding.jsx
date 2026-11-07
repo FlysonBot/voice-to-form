@@ -11,11 +11,14 @@ import { useVoice } from "./useVoice";
  *  profile         current profile object (shared format)
  *  onProfile(p)    called after every turn with the updated profile
  *  onDone(p)       called when every onboarding field is filled or skipped
+ *  onLanguage(code) called when the language detected from the user's speech differs from
+ *                  `language` (pass "auto" as `language` to detect it from the first answer)
  *  onScanRequest() optional: opens the camera + /profile/extract (Person 2/4) and
  *                  resolves to the updated profile, or null if cancelled
  */
-export default function VoiceOnboarding({ language, profile, onProfile, onDone, onScanRequest }) {
+export default function VoiceOnboarding({ language, profile, onProfile, onDone, onScanRequest, onLanguage }) {
   const t = ui(language);
+  const langRef = useRef(language); // current language, updated as soon as a turn detects a new one
   const v = useVoice(language);
   const [started, setStarted] = useState(false);
   const [question, setQuestion] = useState("");
@@ -29,7 +32,7 @@ export default function VoiceOnboarding({ language, profile, onProfile, onDone, 
     setError("");
     v.setStatus("thinking");
     const body = {
-      language,
+      language: langRef.current,
       profile: profileRef.current,
       audio_b64: audio?.audio_b64 ?? null,
       mime_type: audio?.mime_type ?? "audio/wav",
@@ -47,10 +50,14 @@ export default function VoiceOnboarding({ language, profile, onProfile, onDone, 
     }
     profileRef.current = res.profile;
     onProfile?.(res.profile);
+    if (res.language && res.language !== langRef.current) {
+      langRef.current = res.language;
+      onLanguage?.(res.language);
+    }
     setTranscript(res.transcript || "");
     setQuestion(res.say);
     questionRef.current = res.say;
-    await v.say(res.say);
+    await v.say(res.say, langRef.current);
     if (res.done) return onDone?.(res.profile);
     await listenAndSend(); // natural back-and-forth: start listening right after the question
   }
@@ -114,7 +121,7 @@ export default function VoiceOnboarding({ language, profile, onProfile, onDone, 
       />
 
       <div className="voice-actions">
-        <button onClick={() => v.say(questionRef.current)} disabled={v.status !== "idle"}>🔁 {t.repeat}</button>
+        <button onClick={() => v.say(questionRef.current, langRef.current)} disabled={v.status !== "idle"}>🔁 {t.repeat}</button>
         <button onClick={() => { v.cancelAll(); turn({ userText: "skip" }); }} disabled={v.status === "thinking"}>⏭ {t.skip}</button>
         {onScanRequest && <button onClick={scan} disabled={v.status === "thinking"}>📷 {t.scan}</button>}
       </div>

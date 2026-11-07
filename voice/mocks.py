@@ -24,7 +24,9 @@ _SCRIPT = [
 _OPTIONAL_SKIP = ["email", "gender", "mailing_address", "school_children", "has_senior", "has_disability", "has_veteran"]
 
 
-def onboarding_turn(profile: dict, has_audio: bool) -> dict:
+def onboarding_turn(profile: dict, has_audio: bool, language: str = "es", spoke: bool = False) -> dict:
+    # Auto-detect mock: the scripted user speaks Spanish, so "auto" becomes "es" once they talk.
+    new_language = "es" if (language == "auto" and spoke) else language
     profile = dict(profile)
     step = profile.pop("_mock_step", {"value": 0}).get("value", 0)
     if has_audio:
@@ -47,7 +49,8 @@ def onboarding_turn(profile: dict, has_audio: bool) -> dict:
     profile["_mock_step"] = {"value": step}
     return {"profile": profile, "transcript": "(mock) respuesta de la usuaria" if has_audio else "",
             "say": say, "done": done, "remaining_fields": [] if done else remaining,
-            "updated_fields": list(fills.keys())}
+            "updated_fields": list(fills.keys()),
+            "language": new_language, "language_changed": new_language != language}
 
 
 def question(field: str) -> dict:

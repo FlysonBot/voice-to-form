@@ -15,13 +15,13 @@ export default function VoiceDemo() {
     <div>
       {step === "lang" && (
         <div className="voice-screen">
-          {[["es", "Español"], ["en", "English"], ["zh", "中文"], ["vi", "Tiếng Việt"]].map(([code, name]) => (
+          {[["auto", "🌐 Auto"], ["es", "Español"], ["en", "English"], ["zh", "中文"], ["vi", "Tiếng Việt"]].map(([code, name]) => (
             <button key={code} className="big-btn" onClick={() => { setLanguage(code); setStep("onboarding"); }}>{name}</button>
           ))}
         </div>
       )}
       {step === "onboarding" && (
-        <VoiceOnboarding language={language} profile={profile} onProfile={setProfile} onDone={(p) => { setProfile(p); setStep("gaps"); }} />
+        <VoiceOnboarding language={language} profile={profile} onProfile={setProfile} onLanguage={setLanguage} onDone={(p) => { setProfile(p); setStep("gaps"); }} />
       )}
       {step === "gaps" && (
         <GapQuestions language={language} profile={profile} formName="SDG&E CARE"

@@ -95,7 +95,8 @@ def _with_audio(result: dict, text: str, wanted: bool) -> dict:
 @router.post("/onboarding/turn")
 def post_onboarding_turn(body: OnboardingTurnIn, mock: bool = Query(False)):
     if mock:
-        return mocks.onboarding_turn(body.profile, body.audio_b64 is not None or body.user_text is not None)
+        return mocks.onboarding_turn(body.profile, body.audio_b64 is not None or body.user_text is not None,
+                                     body.language, body.audio_b64 is not None)
     try:
         return onboarding_turn(body.language, body.profile, body.audio_b64, body.mime_type, body.last_question,
                                body.user_text)

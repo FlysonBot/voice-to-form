@@ -29,8 +29,9 @@ Each owner fills in **their own** endpoints. The consumer (mostly P4 frontend) c
 
 ### `POST /onboarding/turn` (P2 Gemini + P3 Voice) — consumer: P4
 - **Does:** user's audio + current profile → updated profile + next spoken question (or `done: true`)
-- **Request (JSON):** `{"language": "es", "profile": {...}, "audio_b64": "<base64 WAV>" | null, "mime_type": "audio/wav", "last_question": "<what we last said>", "user_text": "skip" | null}`. First turn: no audio → greeting + first question.
-- **Response (JSON):** `{"profile": {...updated}, "transcript": "...", "say": "<next question, user's language>", "done": false, "remaining_fields": ["phone", ...], "updated_fields": ["first_name", ...]}`
+- **Request (JSON):** `{"language": "es" | "auto", "profile": {...}, "audio_b64": "<base64 WAV>" | null, "mime_type": "audio/wav", "last_question": "<what we last said>", "user_text": "skip" | null}`. First turn: no audio → greeting + first question.
+- **Response (JSON):** `{"profile": {...updated}, "transcript": "...", "say": "<next question, user's language>", "done": false, "remaining_fields": ["phone", ...], "updated_fields": ["first_name", ...], "language": "es", "language_changed": false}`
+- **Language auto-detect:** `language` in the response is the language the user actually speaks (detected each turn). When `language_changed` is true, P4 should store it in `session.language` and use it for all later calls.
 - **Profile keys:** `voice/fields.py` (split name/address parts; `full_name` and `address` are derived). Skipped optional fields carry `"skipped": true`.
 - **Mock:** `?mock=true` plays a scripted Spanish conversation (fake Maria Lopez), one step per call.
 - **Open:** P3 has a working version in `voice/onboarding.py`; P2 can take over the prompt/schema there.

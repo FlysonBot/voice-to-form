@@ -43,13 +43,18 @@ class TurnOut(BaseModel):
     correction_field: str           # which field they want to fix, "" if unclear
     next_question: str              # in the user's language; one short question
     closing_message: str            # in the user's language; used only if everything is done
+    spoken_language: str            # code of the language the user SPOKE this turn, or "" (see LANGUAGE rules)
 
 
 SYSTEM = """You are a warm, patient assistant helping a person in San Diego build a profile so we can fill government benefit forms for them.
-You are talking with them by VOICE in {lang}. Many users have little formal education or are not confident with paperwork. Use short, simple, friendly sentences.
+You are talking with them by VOICE. Current language: {lang}. Many users have little formal education or are not confident with paperwork. Use short, simple, friendly sentences.
 
+LANGUAGE
+- Supported languages (code: name): {codes}
+- spoken_language: the code of the language the user actually spoke this turn, ONLY if their answer contains a phrase or sentence clearly in one supported language. Return "" if there was no speech, or the answer is just a name, a number, an address, "yes"/"no" or "ok" (those don't reveal the language), or the language isn't supported.
+- Write next_question and closing_message in the language of spoken_language if it is not "", otherwise in {lang}. Never mix languages, except in the greeting rule below.
+{auto_rule}
 RULES
-- Every sentence you write for the user (next_question, closing_message) MUST be in {lang}.
 - Field VALUES must be in English / Latin letters, as US forms require (transliterate names; numbers as digits; dates YYYY-MM-DD; money as plain numbers in USD).
 - Extract EVERY field the answer contains, even fields you didn't ask about. Example: "it's me, my husband and two kids" -> household_size=4 and household_members.
 - household_members = the OTHER people (not the user). If they live alone: household_size=1, household_members empty.
@@ -107,8 +112,15 @@ def _merge(profile: dict, out: TurnOut) -> dict:
 
 def onboarding_turn(language: str, profile: dict, audio_b64: str | None, mime_type: str,
                     last_question: str, user_text: str | None = None) -> dict:
-    lang = LANGUAGES.get(language, "English")
-    system = SYSTEM.format(lang=lang, fields=", ".join(FIELD_KEYS))
+    auto = language not in LANGUAGES  # "auto" (or unknown): detect from the user's speech
+    lang = "not chosen yet (auto-detect)" if auto else LANGUAGES[language]
+    auto_rule = (
+        "- AUTO MODE: the user has not chosen a language. If you can't tell the language yet (e.g. the very first turn), "
+        "write next_question as ONE short greeting + question in English, then the same in Spanish, and invite them to answer in any language.\n"
+        if auto else ""
+    )
+    system = SYSTEM.format(lang=lang, auto_rule=auto_rule, fields=", ".join(FIELD_KEYS),
+                           codes=", ".join(f"{k}: {v}" for k, v in LANGUAGES.items()))
     optional = [k for k, _, opt, _ in ONBOARDING_FIELDS if opt]
 
     context = (
@@ -128,6 +140,10 @@ def onboarding_turn(language: str, profile: dict, audio_b64: str | None, mime_ty
 
     out: TurnOut = structured_call(contents, TurnOut, system)
 
+    # Switch language only on a supported language Gemini heard clearly in actual speech.
+    heard = out.spoken_language.strip().lower() if audio_b64 else ""
+    new_language = heard if heard in LANGUAGES else language
+
     # Drop "skips" of required fields — the model is told not to, but enforce it.
     out.skipped_fields = [f for f in out.skipped_fields if f in optional]
     new_profile = _merge(profile, out)
@@ -141,4 +157,6 @@ def onboarding_turn(language: str, profile: dict, audio_b64: str | None, mime_ty
         "remaining_fields": remaining,
         "updated_fields": [e.field for e in out.extracted if e.field in new_profile]
         + (["household_members"] if out.household_members else []),
+        "language": new_language,          # "auto" until a language is detected
+        "language_changed": new_language != language,
     }

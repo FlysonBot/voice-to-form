@@ -9,9 +9,10 @@ export function useVoice(language) {
   const recRef = useRef(null);
   const aliveRef = useRef(true);
 
-  const say = useCallback(async (text) => {
+  // langOverride: speak in a language detected mid-turn, before the parent re-renders.
+  const say = useCallback(async (text, langOverride) => {
     setStatus("speaking");
-    try { await speak(text, language); } finally { if (aliveRef.current) setStatus("idle"); }
+    try { await speak(text, langOverride || language); } finally { if (aliveRef.current) setStatus("idle"); }
   }, [language]);
 
   /** Records one answer. Resolves to audio payload, or null if nothing was heard. Throws if mic is blocked. */

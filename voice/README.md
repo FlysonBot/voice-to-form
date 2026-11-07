@@ -33,8 +33,8 @@ The React files live under `frontend/src/voice/` (not here) because Vite resolve
 ```bash
 # .env at the repo root (copy .env.example)
 GEMINI_API_KEY=...
-GEMINI_MODEL=<current Flash model from AI Studio>
-GEMINI_TTS_MODEL=<current Flash TTS model from AI Studio>
+GEMINI_MODEL=gemini-3.8-flash            # tested 2026-11-07; any current Flash model
+GEMINI_TTS_MODEL=gemini-3.8-flash-tts    # tested 2026-11-07
 GEMINI_TTS_VOICE=Kore          # optional
 
 # from the repo root (deps are already in pyproject.toml)
@@ -58,10 +58,17 @@ Open http://localhost:5173 in Chrome and allow the microphone. `VITE_MOCK=true` 
 
 In P4's app, render `<VoiceDemo />` (or the individual components) instead. To add the routes to the shared app: `from voice.router import router as voice_router; app.include_router(voice_router)`.
 
+## Language auto-detect
+- Pass `language: "auto"` to `/onboarding/turn` (the demo picker's **🌐 Auto** button). The greeting is in English + Spanish and invites an answer in any language.
+- Every turn, Gemini reports `spoken_language`: the supported language the user clearly spoke. Names, numbers, addresses and "yes/no" don't count, so reading a phone number never switches language.
+- If it differs from the current language, the reply is already in the new language and the response has `language: "<code>"`, `language_changed: true`. This works mid-conversation too (picked Spanish, answered in Vietnamese → switches to `vi`).
+- `VoiceOnboarding` calls `onLanguage(code)`; the parent stores it, so gap questions, the recap, button labels and the browser voice follow.
+- Only languages in `LANGUAGES` (`voice/fields.py`) are detected. If nothing is ever detected the language stays `"auto"`, and the later endpoints fall back to English.
+
 ## Endpoints (JSON in, JSON out; audio is base64 WAV)
 | Route | Body | Returns |
 |---|---|---|
-| `POST /onboarding/turn` | `language, profile, audio_b64?, last_question, user_text?` | `profile, transcript, say, done, remaining_fields, updated_fields` |
+| `POST /onboarding/turn` | `language` (or `"auto"`)`, profile, audio_b64?, last_question, user_text?` | `profile, transcript, say, done, remaining_fields, updated_fields, language, language_changed` |
 | `POST /voice/question` | `language, field, description, form_name, retry_reason?` | `question` |
 | `POST /voice/answer` | `language, field, description, question, audio_b64` | `transcript, intent, value, confidence, reply, profile_entry` |
 | `POST /recap` | `language, profile, form_name, blank_fields` | `intro, items[{field,label,value,low_confidence,spoken}], outro, script, needs_confirmation` |
