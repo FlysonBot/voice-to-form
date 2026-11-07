@@ -28,7 +28,9 @@ def _env(name: str) -> str:
 def client() -> genai.Client:
     global _client
     if _client is None:
-        _client = genai.Client(api_key=_env("GEMINI_API_KEY"))
+        # v1beta: google-genai 3.x defaults to v1, which rejects speech_config (TTS voices).
+        _client = genai.Client(api_key=_env("GEMINI_API_KEY"),
+                               http_options=types.HttpOptions(api_version="v1beta"))
     return _client
 
 
