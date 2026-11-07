@@ -218,3 +218,8 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# voice smoke test output
+smoke_out/
+# frontend
+node_modules/
