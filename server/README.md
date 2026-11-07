@@ -17,6 +17,12 @@ npm run dev                            # http://localhost:5173 (Chrome; allow th
 Optional: `USE_GEMINI_TTS=1` in the root `.env` adds Gemini's voice (`audio_b64`) to
 onboarding replies, gap questions and the recap. Off by default; the browser voice is used.
 
+### One-port version (for a demo laptop or sharing)
+```bash
+cd frontend && VITE_API_MODE=live npm run build && cd ..
+uv run uvicorn server.serve:app --port 8080          # app at http://localhost:8080, API at /api
+```
+
 ## Who serves what
 | Route | Code | Adapter does |
 |---|---|---|
