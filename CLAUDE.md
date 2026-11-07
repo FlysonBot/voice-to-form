@@ -83,14 +83,17 @@ Gemini asks these as a natural conversation (e.g. "Who lives with you?"), not as
 ## Architecture
 
 ```
-frontend/   React (Vite) — screens, mic recording, signature pad
-backend/    Python FastAPI — Gemini calls, PDF filling
-  forms/    blank PDFs + field_map JSON per form
+form_engine/   P1: PDF filling, field maps, signature stamping
+gemini/        P2: Gemini extraction, program matching, gap detection
+voice/         P3: audio in/out, onboarding conversation, recap
+frontend/      P4: screens, signature pad, demo assets
 ```
+
+One top-level folder per role. Each person decides what goes inside their own folder and documents it in its `README.md`. Wiring the pieces into one FastAPI app is agreed between owners when needed.
 
 Suggested stack (the team can change it): React + Vite, FastAPI, `google-genai` (official Gemini Python SDK), `pypdf`, `reportlab` (fallback overlay), `signature_pad` (JS).
 
-**Python tooling: `uv`.** `pyproject.toml` and `uv.lock` are at the repo root (Python 3.12, `.python-version`). Installed: fastapi, uvicorn, google-genai, pypdf, reportlab, python-multipart, python-dotenv, pydantic; dev: pytest, httpx, ruff. Run everything with `uv run ...` (e.g. `uv run fastapi dev backend/main.py`). Add packages with `uv add`, never `pip install`, and commit `pyproject.toml` + `uv.lock` together. Copy `.env.example` to `.env` for keys.
+**Python tooling: `uv`.** `pyproject.toml` and `uv.lock` are at the repo root (Python 3.12, `.python-version`). Installed: fastapi, uvicorn, google-genai, pypdf, reportlab, python-multipart, python-dotenv, pydantic; dev: pytest, httpx, ruff. Run everything with `uv run ...` (e.g. `uv run fastapi dev <entry file>`). Add packages with `uv add`, never `pip install`, and commit `pyproject.toml` + `uv.lock` together. Copy `.env.example` to `.env` for keys.
 
 ### Shared data format (everyone reads and writes this)
 
@@ -146,7 +149,7 @@ Suggested stack (the team can change it): React + Vite, FastAPI, `google-genai` 
 ## PDF filling notes
 
 - List fields first: `PdfReader(path).get_fields()`.
-- Map PDF field names to profile keys in `backend/forms/<form_id>.field_map.json`.
+- Map PDF field names to profile keys in `form_engine/<form_id>.field_map.json`.
 - Fill with `PdfWriter` + `update_page_form_field_values(...)`, and set `auto_regenerate=False` / NeedAppearances so the values show up.
 - **Many government PDFs are not fillable** (scanned or XFA). Fallback: draw text at fixed coordinates with `reportlab` and merge it onto the page. Check this for the CARE form **in the first hour**.
 - Signature: the frontend sends the canvas as a PNG, and the backend stamps it onto the signature line with `reportlab`.

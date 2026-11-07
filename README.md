@@ -46,9 +46,10 @@ Meet Maria, a Spanish speaker in San Diego. She has never used the app.
 ## How it works (for developers)
 
 ```
-frontend/   React (Vite): screens, mic recording, signature pad
-backend/    Python FastAPI: Gemini calls, PDF filling
-  forms/    blank PDFs + a field_map JSON per form
+form_engine/   PDF filling and field maps
+gemini/        Gemini extraction, program matching, gaps
+voice/         audio in/out, onboarding conversation, recap
+frontend/      React (Vite): screens, signature pad
 ```
 
 - **One shared JSON profile** that every part of the app reads and writes. Each field has a value, a confidence from 0 to 1 and a source (voice, ID photo, document). Any field under 0.8 confidence must be confirmed by the user.
@@ -65,7 +66,7 @@ Needs [uv](https://docs.astral.sh/uv/) (it installs Python 3.12 for you).
 ```bash
 uv sync                      # create .venv and install everything from uv.lock
 cp .env.example .env         # then fill in GEMINI_API_KEY and GEMINI_MODEL
-uv run fastapi dev backend/main.py   # run the API (once backend/main.py exists)
+uv run fastapi dev <entry file>   # run the API (entry file TBD by the team)
 uv run pytest                # tests
 uv run ruff check . && uv run ruff format .
 ```
