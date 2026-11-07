@@ -223,3 +223,5 @@ __marimo__/
 smoke_out/
 # frontend
 node_modules/
+# Voice recordings used for testing (keep out of the public repo)
+gemini/samples/

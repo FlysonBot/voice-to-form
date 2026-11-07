@@ -101,11 +101,15 @@ Suggested stack (the team can change it): React + Vite, FastAPI, `google-genai` 
 {
   "language": "es",
   "profile": {
-    "full_name":      {"value": "Maria Lopez", "confidence": 0.95, "source": "id_photo"},
-    "gender":         {"value": "female",      "confidence": 1.0,  "source": "onboarding_voice"},
-    "address":        {"value": "...",         "confidence": 0.9,  "source": "onboarding_voice"},
-    "household_size": {"value": 4,             "confidence": 1.0,  "source": "onboarding_voice"},
-    "monthly_income": {"value": null,          "confidence": 0,    "source": null}
+    "first_name":     {"value": "Maria",               "confidence": 0.95, "source": "id_photo"},
+    "last_name":      {"value": "Lopez",               "confidence": 0.95, "source": "id_photo"},
+    "gender":         {"value": "female",              "confidence": 1.0,  "source": "onboarding_voice"},
+    "address_street": {"value": "4321 University Ave", "confidence": 0.9,  "source": "onboarding_voice"},
+    "address_unit":   {"value": "Apt 7",               "confidence": 0.9,  "source": "onboarding_voice"},
+    "address_city":   {"value": "San Diego",           "confidence": 1.0,  "source": "onboarding_voice"},
+    "address_zip":    {"value": "92105",               "confidence": 0.95, "source": "onboarding_voice"},
+    "household_size": {"value": 4,                     "confidence": 1.0,  "source": "onboarding_voice"},
+    "monthly_income": {"value": null,                  "confidence": 0,    "source": null}
   },
   "selected_form": "sdge_care",
   "suggested_programs": [
@@ -113,15 +117,22 @@ Suggested stack (the team can change it): React + Vite, FastAPI, `google-genai` 
   ],
   "missing_fields": ["monthly_income"],
   "confirmed": false,
-  "signature_png": null
+  "signature_png": null,
+  "skipped": ["email"],
+  "last_question": "¿Quién vive con usted?"
 }
 ```
 
+- This whole object is the **`session`**: the frontend keeps it in memory and sends it (as the `session` field) on every API call. Endpoints read the keys they need and ignore the rest.
+- `skipped` (profile keys the user skipped) and `last_question` (the question just asked) are kept by the client for the onboarding loop.
 - `source` is one of: `onboarding_voice`, `id_photo`, `document`, `gap_voice`.
 - Household members go in `profile.household_members` as a list of `{first_name, relationship, date_of_birth}`.
 - Any field with `confidence < 0.8` must be explicitly confirmed by the user in the recap.
+- **Names and addresses are split into separate keys (decided).** There is no `full_name` or `address` key. Name: `first_name`, `middle_name` (optional), `last_name`. Home address: `address_street`, `address_unit` (optional), `address_city`, `address_zip`. There is no state key: every user is in San Diego, so P1's form engine writes "CA" into any State field. The full key list lives in `gemini/profile_fields.py` and `gemini/README.md`; P1's `field_map` maps PDF fields to these keys.
 
 ### API endpoints (backend)
+
+Request/response contracts for each endpoint, and the shared error shape, are in [`API.md`](API.md).
 
 | Endpoint | Does |
 |---|---|
@@ -140,9 +151,11 @@ Suggested stack (the team can change it): React + Vite, FastAPI, `google-genai` 
 - **Don't hardcode a model name in code.** Read it from `GEMINI_MODEL` in `.env` and pick a current Flash model from Google AI Studio at the start. Use a separate env var `GEMINI_TTS_MODEL` for speech output.
 - **Structured output:** for extraction, gap-finding and answer parsing, set `response_mime_type="application/json"` with a `response_schema` so responses always parse.
 - **Search grounding (Path B):** use the `google_search` tool. On some models grounding can't be combined with a JSON schema, so use **two calls**: (1) a grounded search for programs and their official URLs, then (2) a second structured-output call that turns the results into `suggested_programs`. Keep the source URLs from the grounding metadata.
-- **Audio in:** send the recorded audio (webm/wav) straight to Gemini and ask for a transcript plus a parsed value in one structured call.
+- **Audio in:** send the recorded audio (webm/wav) straight to Gemini and ask for a transcript plus a parsed value in one structured call. **Tested:** the browser's `audio/webm;codecs=opus` works directly, with no conversion.
+- **Spoken numbers need a short prompt.** A long, rule-heavy prompt garbled spoken digit strings ("cero uno dos tres…" → "0003…") in 6 of 6 runs, while a plain "transcribe the digits" prompt got them right. `gemini/` uses a short prompt for `digits`/`phone`/`zip` fields. Onboarding goes further: it **transcribes first** (with only the question just asked and local words as context), then extracts from the text; one combined call misheard a ZIP correction and a birth month. Never put known profile values into the transcription prompt. Rerun `uv run python gemini/scripts/live_e2e.py` to check the whole flow against real Gemini.
+- **Quota (tested 2026-11-07):** the free tier allowed only **5 requests/minute and 20 requests/day per model** (`gemini-3.5-flash`), and testing used up the day's quota. One onboarding conversation is 15+ requests. **Billing is now enabled (prepaid credit) on P2's project; use that key for the demo.** With prepay, a $0 balance makes every key on the billing account fail with HTTP 402, free-tier calls included, so keep an eye on the balance. Each model has its own quota; `GEMINI_FALLBACK_MODEL` in `.env` sets a second model for retries. On the day, `gemini-3.8-flash` and `gemini-3.7-flash` were overloaded (503/504), `gemini-2.5-flash` was gone (404), and `gemini-3.1-flash-lite` worked well.
 - **Onboarding loop:** each turn sends the audio and the current profile. Gemini returns the fields it extracted (one answer may fill several, e.g. "it's me, my husband and two kids" fills household size and members) plus the next question to ask, in the user's language. The loop ends when every onboarding field is filled or skipped. Keep turns short: one question at a time.
-- **Audio out:** use a Gemini TTS model for questions and the recap. **Fallback:** the browser's `speechSynthesis` API if TTS is slow or fails during the demo.
+- **Audio out:** use a Gemini TTS model for questions and the recap. **Fallback:** the browser's `speechSynthesis` API if TTS is slow or fails during the demo. **Tested (P2's key, billing on):** Gemini TTS now goes through the Interactions API (`client.interactions.create(model="gemini-3.8-flash-lite-tts", ..., response_format={"type": "audio"}, generation_config={"speech_config": [{"voice": "Kore"}]})`, returns 24 kHz WAV, Spanish supported), but both `gemini-3.8-flash-lite-tts` and `gemini-3.8-flash-tts` returned **404 not found** for this key, and the old `speech_config` in `generate_content` is rejected. **Use the browser's `speechSynthesis` for the demo** unless another teammate's key can call a TTS model.
 - **Language:** every user-facing string Gemini writes must be in `language`. Field values that go into the PDF stay in **English/Latin characters** as the form requires (e.g. transliterate names if needed and confirm with the user).
 - Keep the API key in `.env` (`GEMINI_API_KEY`) and never commit it. Add `.env` to `.gitignore`.
 

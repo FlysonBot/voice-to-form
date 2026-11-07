@@ -1,0 +1,12 @@
+# FE-12: Signature safety, route fixes, test hygiene
+Wave 3 · Parallel with FE-10, FE-11 · Read first: `../00-contract.md`
+
+**Write only:** `form_engine/signature.py`, `form_engine/tests/test_signature.py`, `form_engine/routes.py`, `form_engine/tests/test_routes.py`, `form_engine/tests/test_e2e.py`. No other files.
+
+**Do**
+1. **Signature pixel limit.** In `decode_signature`, check `img.size` immediately after `Image.open` (it is lazy) BEFORE `.convert`. Reject (`ValueError("invalid signature image")`) if either side > 4000 or width*height > 4,000,000. Set a low `Image.MAX_IMAGE_PIXELS` is not needed; this check is enough. Test with a mode-"1" PNG 5000x5000 (small file): must raise fast.
+2. **White/opaque backgrounds.** After converting to RGBA, if the image has no transparency (all alpha 255), turn near-white pixels (R,G,B all >= 240) transparent. Then trim to the bbox of non-transparent pixels as today. Tests: a white-background JPEG and an opaque white PNG with a black stroke both end up trimmed to the stroke and smaller than the input; an all-white image returns `None`.
+3. **Routes.** (a) `?mock=true` must not require a `session` in the body: default `session: dict = {}`. (b) Log unexpected exceptions with `logging.getLogger(__name__).error("fill failed: %s", type(e).__name__)` only (never the message, never request data). (c) Add one **unmocked** test that posts `form_engine/fixtures/mock_session.json` to the real route (no monkeypatch of `fill_form`) and checks a one-page PDF with the fake name.
+4. **Tests hygiene.** `test_e2e.py` must not hardcode a scratch path: use pytest `tmp_path`. Also `values.py` is being changed in parallel (FE-10) so that `date` is today's date in `America/Los_Angeles`: make the e2e date assertion compute the expected date the same way (`datetime.datetime.now(ZoneInfo("America/Los_Angeles")).date()`). Another parallel ticket (FE-11) will draw `annual_income` one digit per box, so text extraction may no longer contain `"38,400"`: change the income assertions in `test_e2e.py` to accept the digits `38400` with any separators between them (e.g. strip non-digits from the extracted text before checking `"38400" in ...`). Do not touch `test_fill.py`.
+
+**Acceptance:** `uv run pytest form_engine/tests/test_signature.py form_engine/tests/test_routes.py form_engine/tests/test_e2e.py` passes (e2e income assertion may only fully pass after FE-11 lands; report what you see); ruff clean.

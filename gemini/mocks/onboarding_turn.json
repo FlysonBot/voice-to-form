@@ -1,0 +1,29 @@
+{
+  "transcript": "Somos yo, mi esposo Jose y nuestros dos hijos, Ana y Luis.",
+  "intent": "answer",
+  "profile": {
+    "phone": {"value": "6195550142", "confidence": 0.95, "source": "onboarding_voice"},
+    "first_name": {"value": "Maria", "confidence": 0.95, "source": "id_photo"},
+    "last_name": {"value": "Lopez", "confidence": 0.95, "source": "id_photo"},
+    "date_of_birth": {"value": "1988-03-14", "confidence": 0.95, "source": "id_photo"},
+    "address_street": {"value": "4321 University Ave", "confidence": 0.9, "source": "onboarding_voice"},
+    "address_unit": {"value": "Apt 7", "confidence": 0.9, "source": "onboarding_voice"},
+    "address_city": {"value": "San Diego", "confidence": 1.0, "source": "onboarding_voice"},
+    "address_zip": {"value": "92105", "confidence": 0.95, "source": "onboarding_voice"},
+    "housing_status": {"value": "rent", "confidence": 1.0, "source": "onboarding_voice"},
+    "household_size": {"value": 4, "confidence": 0.9, "source": "onboarding_voice"},
+    "household_members": {"value": [
+      {"first_name": "Jose", "relationship": "spouse", "date_of_birth": null},
+      {"first_name": "Ana", "relationship": "child", "date_of_birth": null},
+      {"first_name": "Luis", "relationship": "child", "date_of_birth": null}
+    ], "confidence": 0.75, "source": "onboarding_voice"}
+  },
+  "skipped": ["email", "gender", "mailing_address", "middle_name", "monthly_housing_cost"],
+  "updated_keys": ["household_size", "household_members"],
+  "rejected_keys": [],
+  "next_question": "Gracias. ¿Cuál es la fecha de nacimiento de Jose?",
+  "done": false,
+  "remaining": ["household_members", "children_schools", "income_amount", "income_frequency", "income_sources",
+                "benefits_calfresh", "benefits_medi_cal", "benefits_wic", "benefits_ssi", "benefits_school_meals",
+                "benefits_other", "has_senior_65_plus", "has_disability", "has_veteran"]
+}

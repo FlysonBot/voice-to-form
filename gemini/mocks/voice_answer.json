@@ -1,0 +1,9 @@
+{
+  "field_key": "sdge_account_number",
+  "transcript": "Es cero uno dos tres, cuatro cinco seis siete, ocho nueve cero.",
+  "status": "answered",
+  "value": "01234567890",
+  "confidence": 0.79,
+  "source": "gap_voice",
+  "clarification_question": null
+}
