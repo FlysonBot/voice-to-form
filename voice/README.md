@@ -48,7 +48,15 @@ VITE_USE_GEMINI_TTS=true       # set false on demo day if TTS is slow -> browser
 ```
 `uv run fastapi dev ...` does not work yet: it needs `fastapi[standard]`, and the repo has plain `fastapi`. Use `uvicorn` as above.
 
-Temporarily render `<VoiceDemo />` in `App.jsx` to try the whole flow. To add the routes to the shared app: `from voice.router import router as voice_router; app.include_router(voice_router)`.
+### Try it yourself (demo page, no P4 app needed)
+`voice/demo/` is a tiny Vite page that runs `VoiceDemo` (language -> onboarding -> gap question -> recap). Needs Node 18+.
+```bash
+uv run uvicorn voice.dev_app:app --reload --port 8000   # terminal 1, repo root
+cd voice/demo && cp .env.example .env && npm install && npm run dev   # terminal 2
+```
+Open http://localhost:5173 in Chrome and allow the microphone. `VITE_MOCK=true` (default) needs no key: the mock answers move the script forward whatever you say. Set `VITE_MOCK=false` in `voice/demo/.env` (and fill the root `.env`) to talk to real Gemini. The backend's interactive API page is http://localhost:8000/docs.
+
+In P4's app, render `<VoiceDemo />` (or the individual components) instead. To add the routes to the shared app: `from voice.router import router as voice_router; app.include_router(voice_router)`.
 
 ## Endpoints (JSON in, JSON out; audio is base64 WAV)
 | Route | Body | Returns |
