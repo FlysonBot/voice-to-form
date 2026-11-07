@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { findPrograms } from '../api/client';
 import ProgressSteps from '../components/layout/ProgressSteps';
@@ -13,15 +13,20 @@ export default function ProgramsPage() {
   const { session, setPrograms, selectForm } = useAppStore();
   const [state, setState] = useState<'loading' | 'ok' | 'error'>(session.suggested_programs.length ? 'ok' : 'loading');
 
+  const [attempt, setAttempt] = useState(0);
+  const inFlight = useRef(-1); // attempt number being fetched (dev StrictMode runs effects twice)
+
+  // Grounded search takes a few seconds; results are kept in the session so Back doesn't re-run it
   useEffect(() => {
-    if (session.suggested_programs.length) return;
+    if (useAppStore.getState().session.suggested_programs.length || inFlight.current === attempt) return;
+    inFlight.current = attempt;
     findPrograms(useAppStore.getState().session)
       .then((r) => {
         setPrograms(r.suggested_programs ?? []);
         setState('ok');
       })
       .catch(() => setState('error'));
-  }, [session.suggested_programs.length, setPrograms]);
+  }, [attempt, setPrograms]);
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-6">
@@ -33,7 +38,12 @@ export default function ProgramsPage() {
       <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">{t('programsDisclaimer')}</p>
 
       {state === 'loading' && <p role="status" className="mt-8 text-stone-500">🔎 {t('searching')}</p>}
-      {state === 'error' && <p role="alert" className="mt-8 text-red-700">{t('chatError')}</p>}
+      {state === 'error' && (
+        <div role="alert" className="mt-8 rounded-xl bg-red-50 p-4 text-red-800">
+          {t('chatError')}{' '}
+          <button onClick={() => { setState('loading'); setAttempt((n) => n + 1); }} className="font-semibold underline">{t('tryAgain')}</button>
+        </div>
+      )}
 
       <ul className="mt-6 space-y-4">
         {session.suggested_programs.map((p) => {

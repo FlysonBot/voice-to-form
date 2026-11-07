@@ -9,6 +9,7 @@ import DocScan from '../components/voice/DocScan';
 import VoiceToggle from '../components/voice/VoiceToggle';
 import { useListener } from '../hooks/useListener';
 import { useReplyPlayer } from '../hooks/useReplyPlayer';
+import { isFilled, labelFor } from '../fields';
 import { useLanguage, useT } from '../i18n/strings';
 import { useAppStore } from '../store/profileStore';
 
@@ -46,16 +47,25 @@ export default function OnboardingPage() {
     try {
       const s = useAppStore.getState(); // fresh state, including the user's new message
       const res = await onboardingTurn(s.session, s.messages, audio, text);
-      // No browser transcript (e.g. Firefox): show what Gemini heard
-      if (!text && res.transcript) addMessage({ role: 'user', text: res.transcript });
+      // No browser transcript (e.g. Firefox): show what Gemini heard. Only when the user
+      // actually sent audio; the first turn (greeting) has nothing to transcribe.
+      if (audio && !text && res.transcript) addMessage({ role: 'user', text: res.transcript });
       mergeProfile(res.profile_updates ?? res.profile ?? {});
-      const id = addMessage({ role: 'assistant', text: res.reply });
-      if (res.done) setOnboardingDone(true);
+      // The backend drops answers that fail validation but its reply may still say "thank you"
+      // and move on. Re-ask those fields instead, so nothing the user said silently disappears.
+      const profileNow = useAppStore.getState().session.profile;
+      const rejected = (res.rejected_keys ?? []).filter((k) => !isFilled(profileNow, k));
+      const reply = rejected.length
+        ? t('rejectedRetry').replace('{field}', rejected.map((k) => labelFor(k, t).toLowerCase()).join(', '))
+        : res.reply;
+      const id = addMessage({ role: 'assistant', text: reply });
+      const done = res.done && !rejected.length;
+      if (done) setOnboardingDone(true);
       setThinking(false);
-      player.play(id, res.reply, latest.current.bcp47, !useAppStore.getState().voiceOn, () => {
-        if (res.done) leaveTimer.current = window.setTimeout(() => navigate('/choose'), 1200);
+      player.play(id, reply, latest.current.bcp47, !useAppStore.getState().voiceOn, () => {
+        if (done) leaveTimer.current = window.setTimeout(() => navigate('/choose'), 1200);
         else if (latest.current.handsFree) latest.current.listener.start();
-      }, res);
+      }, rejected.length ? undefined : res); // Gemini audio only matches Gemini's own reply
     } catch {
       addMessage({ role: 'assistant', text: t('chatError') });
       setThinking(false);

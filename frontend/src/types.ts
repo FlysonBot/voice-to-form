@@ -68,6 +68,9 @@ export interface OnboardingTurnResponse extends SpokenText {
   profile_updates?: Profile;
   profile?: Profile;
   done: boolean;
+  /** Keys Gemini heard but the backend's validation threw out (e.g. an 11-digit phone).
+   *  The backend's `reply` may still say "thank you", so the frontend re-asks these. */
+  rejected_keys?: string[];
 }
 
 /** POST /profile/extract */
@@ -95,6 +98,10 @@ export interface AnswerResponse {
   value: unknown;
   confidence: number;
   transcript?: string | null;
+  /** P2: answered | skipped | leave_blank | unclear */
+  status?: string;
+  /** Set when status is "unclear": ask this instead of accepting the value */
+  clarification_question?: string | null;
 }
 
 /** POST /recap */

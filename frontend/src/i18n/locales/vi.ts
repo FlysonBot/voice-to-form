@@ -20,6 +20,7 @@ export const vi: Strings = {
   cancel: 'Hủy',
   loading: 'Đang tải…',
   chatError: 'Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại.',
+  tryAgain: 'Thử lại',
   startOver: 'Làm lại từ đầu',
 
   stepChat: 'Trò chuyện',
@@ -55,6 +56,7 @@ export const vi: Strings = {
   scanning: 'Đang đọc ảnh…',
   scanned: 'Đã thêm từ ảnh của bạn. Vui lòng kiểm tra sau.',
   scanFailed: 'Không đọc được ảnh. Hãy chụp lại ở nơi đủ sáng, hoặc cứ nói cho chúng tôi.',
+  rejectedRetry: 'Xin lỗi, {field} có vẻ chưa đúng. Bạn có thể nói lại không?',
   doneTalking: 'Tôi xong rồi — tiếp',
 
   whatNext: 'Bạn muốn làm gì tiếp theo?',

@@ -11,7 +11,7 @@ import { useReplyPlayer } from '../hooks/useReplyPlayer';
 import { useLanguage, useT } from '../i18n/strings';
 import { useAppStore } from '../store/profileStore';
 
-type Phase = 'loading' | 'asking' | 'parsing' | 'heard' | 'error';
+type Phase = 'loading' | 'asking' | 'asking-followup' | 'parsing' | 'heard' | 'error';
 
 /**
  * Step 3: ask, by voice, only what THIS form needs that the profile doesn't have
@@ -78,6 +78,14 @@ export default function GapsPage() {
     setPhase('parsing');
     try {
       const res = await voiceAnswer(useAppStore.getState().session, field, audio, text || null);
+      // Gemini wasn't sure what it heard: ask its follow-up question instead of saving a guess
+      if (res.status === 'unclear') {
+        const q = res.clarification_question || t('rejectedRetry').replace('{field}', labelFor(field, t).toLowerCase());
+        setQuestion(q);
+        setPhase('asking-followup');
+        player.play('q', q, bcp47, !useAppStore.getState().voiceOn, () => listener.supported && listener.start());
+        return;
+      }
       mergeProfile({ [field]: { value: res.value ?? null, confidence: Number(res.confidence) || 0, source: 'gap_voice' } });
       setHeard({ transcript: res.transcript || text, value: res.value });
       setPhase('heard');
@@ -151,7 +159,7 @@ export default function GapsPage() {
             )}
           </div>
 
-          {phase === 'asking' && (
+          {(phase === 'asking' || phase === 'asking-followup') && (
             <>
               <ChatInput
                 onSend={(text) => answer(text, null)}

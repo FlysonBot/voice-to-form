@@ -36,13 +36,18 @@ function num(s: string): number | undefined {
 const isSkip = (s: string) => /\b(skip|saltar|omitir|paso|bỏ qua|laktawan)\b/i.test(s);
 
 // ─── Onboarding ──────────────────────────────────────────────────────────────
-interface Step { key: string; q: L; parse: (a: string) => ProfileField | null; optional?: boolean }
+// Profile keys follow gemini/profile_fields.py (names and addresses are split).
+interface Step { key: string; q: L; parse: (a: string) => Profile | null; optional?: boolean }
 const STEPS: Step[] = [
   {
-    key: 'full_name',
+    key: 'first_name',
     q: { en: 'What is your full legal name?', es: '¿Cuál es su nombre legal completo?', vi: 'Họ và tên đầy đủ của bạn là gì?' },
     // Names heard by voice are hard to spell: low confidence → user confirms in the recap
-    parse: (a) => (a.trim().length > 1 ? field(a.trim().replace(/^(me llamo|soy|my name is|i'm|tôi tên là)\s+/i, ''), 0.7) : null),
+    parse: (a) => {
+      const words = a.trim().replace(/^(me llamo|soy|my name is|i'm|i am|tôi tên là)\s+/i, '').split(/\s+/).filter(Boolean);
+      if (!words.length) return null;
+      return { first_name: field(words[0], 0.7), last_name: field(words.slice(1).join(' '), 0.7) };
+    },
   },
   {
     key: 'household_size',
@@ -51,33 +56,51 @@ const STEPS: Step[] = [
       es: '¿Quién vive con usted? ¿Cuántas personas en total, contándose usted?',
       vi: 'Ai sống cùng bạn? Tổng cộng bao nhiêu người, kể cả bạn?',
     },
-    parse: (a) => (num(a) ? field(num(a), 0.95) : null),
+    parse: (a) => (num(a) ? { household_size: field(num(a), 0.95) } : null),
   },
   {
-    key: 'address',
-    q: { en: 'What is your home address?', es: '¿Cuál es la dirección de su casa?', vi: 'Địa chỉ nhà của bạn là gì?' },
-    parse: (a) => (a.trim().length > 4 ? field(a.trim(), 0.85) : null),
+    key: 'address_street',
+    q: {
+      en: 'What is your home address, with the city and ZIP code?',
+      es: '¿Cuál es la dirección de su casa, con la ciudad y el código postal?',
+      vi: 'Địa chỉ nhà của bạn là gì, kèm thành phố và mã bưu điện?',
+    },
+    parse: (a) => {
+      const parts = a.split(',').map((p) => p.trim()).filter(Boolean);
+      if (!parts.length || parts[0].length < 4) return null;
+      const zip = a.match(/\b\d{5}\b/)?.[0];
+      const city = /san diego/i.test(a) ? 'San Diego' : parts[1]?.replace(/\b\d{5}\b/, '').trim();
+      return {
+        address_street: field(parts[0], 0.85),
+        ...(city ? { address_city: field(city, 0.9) } : {}),
+        ...(zip ? { address_zip: field(zip, 0.9) } : {}),
+      };
+    },
   },
   {
     key: 'phone',
     q: { en: 'What is a good phone number for you?', es: '¿A qué número de teléfono le podemos llamar?', vi: 'Số điện thoại của bạn là gì?' },
     parse: (a) => {
       const d = a.replace(/\D/g, '');
-      return d.length >= 7 ? field(d.replace(/^(\d{3})(\d{3})(\d{4})$/, '($1) $2-$3'), 0.9) : null;
+      return d.length >= 7 ? { phone: field(d, 0.9) } : null;
     },
   },
   {
-    key: 'monthly_income',
+    key: 'income_amount',
     optional: true,
     q: {
       en: 'About how much does your household earn per month, before taxes? You can say "skip".',
       es: '¿Aproximadamente cuánto gana su hogar al mes, antes de impuestos? Puede decir "saltar".',
       vi: 'Hộ gia đình bạn kiếm khoảng bao nhiêu mỗi tháng, trước thuế? Bạn có thể nói "bỏ qua".',
     },
-    parse: (a) => (num(a) !== undefined ? field(num(a), 0.9) : null),
+    parse: (a) => {
+      const n = num(a);
+      if (n === undefined) return null;
+      return { income_amount: field(n, 0.9), income_frequency: field('monthly', 0.9), monthly_income: field(n, 0.9) };
+    },
   },
   {
-    key: 'current_benefits',
+    key: 'benefits_calfresh',
     q: {
       en: 'Do you already get CalFresh, Medi-Cal, WIC, or SSI?',
       es: '¿Ya recibe CalFresh, Medi-Cal, WIC o SSI?',
@@ -85,7 +108,13 @@ const STEPS: Step[] = [
     },
     parse: (a) => {
       const s = a.toLowerCase().replace(/[\s-]/g, '');
-      return field(['calfresh', 'medi-cal', 'wic', 'ssi'].filter((b) => s.includes(b.replace('-', ''))), 0.9);
+      const has = (k: string) => s.includes(k);
+      return {
+        benefits_calfresh: field(has('calfresh'), 0.9),
+        benefits_medi_cal: field(has('medical'), 0.9),
+        benefits_wic: field(has('wic'), 0.9),
+        benefits_ssi: field(has('ssi'), 0.9),
+      };
     },
   },
 ];
@@ -114,15 +143,15 @@ export async function onboardingTurn(session: Session, messages: ChatMessage[], 
   if (!current) return { reply: say(DONE, lang), done: true };
 
   const answer = text ?? '';
-  let update: ProfileField | null = null;
-  if (current.optional && isSkip(answer)) update = field('', 1);
-  else update = current.parse(answer);
-  if (!update) return { reply: say(RETRY, lang) + say(current.q, lang), transcript: text, done: false };
+  let updates: Profile | null = null;
+  if (current.optional && isSkip(answer)) updates = { [current.key]: field('', 1) };
+  else updates = current.parse(answer);
+  if (!updates) return { reply: say(RETRY, lang) + say(current.q, lang), transcript: text, done: false };
 
   const next = pending[1];
   return {
     transcript: text,
-    profile_updates: { [current.key]: update },
+    profile_updates: updates,
     reply: next ? say(next.q, lang) : say(DONE, lang),
     done: !next,
   };
@@ -131,25 +160,32 @@ export async function onboardingTurn(session: Session, messages: ChatMessage[], 
 // ─── Document photo (fake ID / pay stub / bill) ──────────────────────────────
 export async function extract(docType: 'id' | 'pay_stub' | 'bill'): Promise<ExtractResponse> {
   await delay(1500);
+  const address = {
+    address_street: field('4021 University Ave Apt 3', 0.72, docType === 'id' ? 'id_photo' : 'document'),
+    address_city: field('San Diego', 0.95, docType === 'id' ? 'id_photo' : 'document'),
+    address_zip: field('92105', 0.9, docType === 'id' ? 'id_photo' : 'document'),
+  };
   if (docType === 'id') {
     return {
       fields: {
-        full_name: field('MARIA ELENA LOPEZ', 0.95, 'id_photo'),
+        first_name: field('Maria', 0.95, 'id_photo'),
+        last_name: field('Lopez', 0.95, 'id_photo'),
         date_of_birth: field('1988-04-12', 0.9, 'id_photo'),
-        address: field('4021 University Ave Apt 3, San Diego, CA 92105', 0.72, 'id_photo'),
+        ...address,
       },
     };
   }
   if (docType === 'pay_stub') {
     return {
       fields: {
-        monthly_income: field(2850, 0.85, 'document'),
-        pay_frequency: field('every 2 weeks', 0.9, 'document'),
+        income_amount: field(1425, 0.85, 'document'),
+        income_frequency: field('biweekly', 0.9, 'document'),
+        monthly_income: field(3088, 0.85, 'document'),
         income_sources: field(['job'], 0.9, 'document'),
       },
     };
   }
-  return { fields: { address: field('4021 University Ave Apt 3, San Diego, CA 92105', 0.9, 'document') } };
+  return { fields: address };
 }
 
 // ─── Path B: programs ───────────────────────────────────────────────────────
@@ -183,9 +219,9 @@ export async function findPrograms(session: Session): Promise<ProgramsResponse> 
 }
 
 // ─── Gap filling ────────────────────────────────────────────────────────────
-// Fields the CARE form needs (placeholder until P1 publishes the real field list)
+// Form-specific ("gap") fields, from form_engine/sdge_care.fields.json (source: "gap", required)
 const FORM_NEEDS: Record<string, string[]> = {
-  sdge_care: ['full_name', 'address', 'phone', 'household_size', 'monthly_income', 'sdge_account_number'],
+  sdge_care: ['sdge_account_number'],
 };
 
 export async function formGaps(session: Session, formId: string): Promise<GapsResponse> {
@@ -200,7 +236,7 @@ const QUESTIONS: Record<string, L> = {
     es: '¿Cuál es su número de cuenta de SDG&E? Está arriba en su factura. También puede decir "déjelo en blanco".',
     vi: 'Số tài khoản SDG&E của bạn là gì? Số này ở phía trên hóa đơn. Bạn cũng có thể nói "để trống".',
   },
-  monthly_income: {
+  income_amount: {
     en: 'About how much does your household earn per month, before taxes?',
     es: '¿Aproximadamente cuánto gana su hogar al mes, antes de impuestos?',
     vi: 'Hộ gia đình bạn kiếm khoảng bao nhiêu mỗi tháng, trước thuế?',
@@ -221,7 +257,7 @@ export async function voiceAnswer(fieldKey: string, text: string | null): Promis
     const d = a.replace(/\D/g, '');
     return { value: d || null, confidence: 0.7, transcript: a }; // long numbers by voice: confirm
   }
-  if (['household_size', 'monthly_income'].includes(fieldKey)) return { value: num(a) ?? null, confidence: 0.85, transcript: a };
+  if (['household_size', 'income_amount', 'monthly_income'].includes(fieldKey)) return { value: num(a) ?? null, confidence: 0.85, transcript: a };
   return { value: a || null, confidence: 0.85, transcript: a };
 }
 

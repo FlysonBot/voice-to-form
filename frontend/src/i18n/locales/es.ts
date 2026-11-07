@@ -20,6 +20,7 @@ export const es: Strings = {
   cancel: 'Cancelar',
   loading: 'Cargando…',
   chatError: 'Lo sentimos, algo salió mal. Inténtelo de nuevo.',
+  tryAgain: 'Intentar de nuevo',
   startOver: 'Empezar de nuevo',
 
   stepChat: 'Hablar',
@@ -55,6 +56,7 @@ export const es: Strings = {
   scanning: 'Leyendo su foto…',
   scanned: 'Agregado de su foto. Revíselo después.',
   scanFailed: 'No pudimos leer esa foto. Intente con buena luz, o simplemente díganoslo.',
+  rejectedRetry: 'Perdón, ese dato ({field}) no parece correcto. ¿Me lo puede repetir?',
   doneTalking: 'Ya terminé — siguiente',
 
   whatNext: '¿Qué le gustaría hacer?',

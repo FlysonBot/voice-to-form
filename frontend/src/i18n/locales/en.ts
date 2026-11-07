@@ -21,6 +21,7 @@ export const en = {
   cancel: 'Cancel',
   loading: 'Loading…',
   chatError: 'Sorry, something went wrong. Please try again.',
+  tryAgain: 'Try again',
   startOver: 'Start over',
 
   stepChat: 'Talk',
@@ -56,6 +57,7 @@ export const en = {
   scanning: 'Reading your photo…',
   scanned: 'Added from your photo. Please check it later.',
   scanFailed: 'We couldn’t read that photo. Try again with good light, or just tell us.',
+  rejectedRetry: 'Sorry, that {field} doesn’t look right. Could you say it again?',
   doneTalking: 'I’m done — next',
 
   whatNext: 'What would you like to do?',
